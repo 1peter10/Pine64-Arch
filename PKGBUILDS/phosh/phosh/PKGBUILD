@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.37.0
-pkgrel=1
+pkgver=0.37.1
+pkgrel=2
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -35,6 +35,7 @@ checkdepends=('xorg-server-xvfb')
 install="$pkgname.install"
 _commit="02635325804f8669860ea99f59bdf003ebe16a1b" # tags/v0.37.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
+	'1387.patch'
         'pam_phosh'
         'phosh.service')
 
@@ -46,6 +47,16 @@ pkgver() {
 prepare() {
     cd phosh
     git submodule update --init
+    
+    local src
+    for src in "${source[@]}"; do
+      src="${src%%::*}"
+      src="${src##*/}"
+      [[ $src = *.patch ]] || continue
+      echo "Applying patch $src..."
+      patch -Np1 < "../$src"
+    done
+
 }
 
 build() {
@@ -69,5 +80,6 @@ package() {
 }
 
 md5sums=('SKIP'
+	 '77cce2e020a83095ca467694419c4189'
          '6d5a0d561f8362bf91f85c236a88395d'
          '66663f2c9775d5f833cccd9c57b86e6e')
